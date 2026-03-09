@@ -1,0 +1,1388 @@
+<!-- centers.html -->
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DialysisCare Malaysia | Pusat Dialisis</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* ========== GLOBAL STYLES (same as original) ========== */
+        :root {
+            --primary: #0056b3;
+            --primary-light: #2d7ee7;
+            --primary-dark: #003d82;
+            --secondary: #d90429;
+            --secondary-light: #ff4757;
+            --accent: #edf2f4;
+            --dark: #2b2d42;
+            --text-main: #333;
+            --white: #ffffff;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --border-light: #e2e8f0;
+            --table-header-bg: #1e293b;
+            --table-row-border: #e2e8f0;
+            --footer-bg: #0f172a;
+            --footer-text: #f1f5f9;
+            --chat-bot-bg: #f1f5f9;
+            --chat-user-bg: var(--primary);
+            --chat-user-text: white;
+            --input-bg: white;
+            --input-border: #cbd5e1;
+            --map-controls-bg: white;
+            --map-controls-text: var(--primary);
+            --map-controls-hover-bg: var(--primary);
+            --map-controls-hover-text: white;
+            --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body.dark-mode {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-dark: #2563eb;
+            --secondary: #ef4444;
+            --secondary-light: #f87171;
+            --accent: #1e1e2e;
+            --dark: #f8fafc;
+            --text-main: #e2e8f0;
+            --white: #1e1e2e;
+            --bg-body: #0a0a0f;
+            --card-bg: #1e1e2e;
+            --border-light: #334155;
+            --table-header-bg: #1e293b;
+            --table-row-border: #334155;
+            --footer-bg: #0f0f1a;
+            --footer-text: #cbd5e1;
+            --chat-bot-bg: #1e293b;
+            --chat-user-bg: var(--primary);
+            --chat-user-text: white;
+            --input-bg: #1e1e2e;
+            --input-border: #334155;
+            --map-controls-bg: #1e1e2e;
+            --map-controls-text: var(--primary-light);
+            --map-controls-hover-bg: var(--primary);
+            --map-controls-hover-text: white;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            scroll-behavior: smooth;
+        }
+        header {
+            background: rgba(var(--white) / 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            height: 80px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            transition: background-color 0.3s;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            letter-spacing: -0.02em;
+        }
+        .logo span { color: var(--secondary); }
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+            gap: 8px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+        }
+        nav ul li a:hover {
+            background: rgba(0,86,179,0.08);
+            color: var(--primary);
+        }
+        nav ul li a.active-link {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-donate-nav {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            color: white !important;
+            padding: 10px 24px !important;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(217,4,41,0.3);
+        }
+        .btn-donate-nav:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(217,4,41,0.4);
+            background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+        }
+        .language-switcher, .dark-mode-switcher {
+            display: flex;
+            align-items: center;
+        }
+        .language-btn, .dark-mode-btn {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            padding: 6px 14px;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            backdrop-filter: blur(4px);
+        }
+        .language-btn:hover, .dark-mode-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .language-indicator {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            z-index: 999;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+        }
+        .page-section {
+            padding: 120px 5% 80px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        h1.title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 24px;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+        h2.subtitle {
+            color: var(--secondary);
+            margin-bottom: 16px;
+            border-left: 6px solid var(--secondary);
+            padding-left: 16px;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+        .search-box {
+            width: 100%;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            background: var(--input-bg);
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--table-row-border);
+        }
+        th {
+            background: var(--table-header-bg);
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover td {
+            background: rgba(0,86,179,0.04);
+        }
+        #map {
+            height: 450px;
+            width: 100%;
+            border-radius: var(--radius-lg);
+            margin-top: 40px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1;
+            border: 2px solid var(--border-light);
+        }
+        .map-controls {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0 32px;
+            flex-wrap: wrap;
+        }
+        .map-btn {
+            padding: 10px 24px;
+            background: var(--map-controls-bg);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-full);
+            color: var(--map-controls-text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .map-btn:hover, .map-btn.active {
+            background: var(--map-controls-hover-bg);
+            color: var(--map-controls-hover-text);
+            border-color: var(--primary-dark);
+            transform: scale(1.02);
+        }
+        footer {
+            background: var(--footer-bg);
+            color: var(--footer-text);
+            padding: 60px 5% 30px;
+            text-align: center;
+            margin-top: 60px;
+            border-top: 1px solid var(--border-light);
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 40px;
+            text-align: left;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .footer-grid h3 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            color: white;
+        }
+        .footer-grid p {
+            cursor: pointer;
+            transition: color 0.2s;
+            margin-bottom: 8px;
+        }
+        .footer-grid p:hover {
+            color: var(--primary-light);
+        }
+        .chatbox-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1001;
+        }
+        .chatbox-toggle {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(217,4,41,0.4);
+            font-size: 1.8rem;
+            transition: var(--transition);
+        }
+        .chatbox-toggle:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .chatbox-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 380px;
+            height: 520px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            backdrop-filter: blur(10px);
+        }
+        .chatbox-header {
+            background: var(--primary);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbox-header strong {
+            font-size: 1.1rem;
+        }
+        .chatbox-close {
+            cursor: pointer;
+            font-size: 1.3rem;
+            opacity: 0.9;
+            transition: 0.2s;
+        }
+        .chatbox-close:hover { opacity: 1; transform: scale(1.1); }
+        .chatbox-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .message.bot {
+            background: var(--chat-bot-bg);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .message.user {
+            background: var(--chat-user-bg);
+            color: var(--chat-user-text);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .chatbox-input {
+            padding: 16px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            gap: 12px;
+        }
+        .chatbox-input input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+        .chatbox-input input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,86,179,0.2);
+        }
+        .chatbox-input button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .chatbox-input button:hover {
+            background: var(--secondary-light);
+            transform: scale(1.05);
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: var(--card-bg);
+            max-width: 600px;
+            margin: 10% auto;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            position: relative;
+            animation: slideUp 0.3s ease;
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-lg);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close-modal {
+            position: absolute;
+            top: 16px; right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.2s;
+        }
+        .close-modal:hover { color: var(--secondary); }
+        .modal-header {
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+        }
+        .modal-list {
+            margin-top: 16px;
+            padding-left: 20px;
+        }
+        @media (max-width: 768px) {
+            header { padding: 0 4%; }
+            nav ul { display: none; }
+            h1.title { font-size: 2rem; }
+            h2.subtitle { font-size: 1.5rem; }
+            .chatbox-window {
+                width: 320px;
+                height: 480px;
+                right: -10px;
+            }
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border-light);
+        }
+        button, .btn-donate-nav {
+            cursor: pointer;
+        }
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Indicator -->
+    <div class="language-indicator" id="languageIndicator">
+        <i class="fas fa-language"></i>
+        <span id="currentLang">Bahasa Melayu</span>
+    </div>
+
+    <header>
+        <div class="logo" onclick="location.href='index.html'">
+            <i class="fas fa-heart-pulse"></i> Dialysis<span>Care</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html" id="nav-home">Utama</a></li>
+                <li><a href="about.html" id="nav-about">Mengenai</a></li>
+                <li><a href="info.html" id="nav-info">Info Dialisis</a></li>
+                <li><a href="diet.html" id="nav-diet">Diet & Nutrisi</a></li>
+                <li><a href="centers.html" id="nav-centers">Pusat Dialisis</a></li>
+                <li><a href="allowance.html" id="nav-allowance">Elaun</a></li>
+                <li><a href="donate.html" id="nav-donate" class="btn-donate-nav">Derma Sekarang</a></li>
+                <li class="language-switcher">
+                    <button class="language-btn" onclick="toggleLanguage()">
+                        <i class="fas fa-language"></i>
+                        <span id="language-text">BM/EN</span>
+                    </button>
+                </li>
+                <li class="dark-mode-switcher">
+                    <button class="dark-mode-btn" onclick="toggleDarkMode()" id="darkModeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Chatbox -->
+    <div class="chatbox-container">
+        <div class="chatbox-toggle" onclick="toggleChatbox()">
+            <i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="chatbox-window" id="chatboxWindow">
+            <div class="chatbox-header">
+                <div>
+                    <strong id="chat-title">Chat Bantuan DialysisCare</strong>
+                    <p id="chat-subtitle" style="font-size: 0.8rem; margin-top: 3px;">Kami di sini untuk membantu anda</p>
+                </div>
+                <div class="chatbox-close" onclick="toggleChatbox()">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="chatbox-messages" id="chatMessages">
+                <div class="message bot" id="welcome-message">
+                    <strong>DialysisCare Bot:</strong> Assalamualaikum! Saya di sini untuk membantu anda. Anda boleh bertanya tentang:
+                    <ul style="margin-top: 5px; padding-left: 20px;">
+                        <li>Info rawatan dialisis</li>
+                        <li>Panduan diet</li>
+                        <li>Lokasi pusat rawatan</li>
+                        <li>Cara menderma</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="chatbox-input">
+                <input type="text" id="chatInput" placeholder="Tulis mesej anda di sini..." onkeypress="handleChatInput(event)">
+                <button onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Popup -->
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modalBody">
+                <!-- Modal content akan diisi oleh JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTERS SECTION -->
+    <section id="centers" class="page-section">
+        <div class="container">
+            <h1 class="title">Rangkaian Pusat Dialisis Malaysia</h1>
+
+            <input type="text" id="centerSearch" class="search-box"
+                placeholder="Cari negeri atau nama pusat..."
+                onkeyup="searchCenters()">
+
+            <div class="map-controls">
+                <button class="map-btn active" onclick="filterMap('all')">Semua</button>
+                <button class="map-btn" onclick="filterMap('Kuala Lumpur')">KL</button>
+                <button class="map-btn" onclick="filterMap('Selangor')">Selangor</button>
+                <button class="map-btn" onclick="filterMap('Johor')">Johor</button>
+                <button class="map-btn" onclick="filterMap('Pulau Pinang')">Penang</button>
+                <button class="map-btn" onclick="filterMap('Melaka')">Melaka</button>
+                <button class="map-btn" onclick="filterMap('Perak')">Perak</button>
+                <button class="map-btn" onclick="filterMap('Sabah')">Sabah</button>
+                <button class="map-btn" onclick="filterMap('Sarawak')">Sarawak</button>
+            </div>
+
+            <table id="centerTable">
+                <thead>
+                    <tr>
+                        <th id="table-header-state">Negeri</th>
+                        <th id="table-header-name">Nama Pusat</th>
+                        <th id="table-header-address">Alamat</th>
+                        <th id="table-header-phone">Telefon</th>
+                    </tr>
+                </thead>
+                <tbody id="centerTableBody"></tbody>
+            </table>
+
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h3 id="footer-title">DialysisCare</h3>
+                <p id="footer-desc">Membantu pesakit buah pinggang Malaysia sejak 2024. Organisasi kebajikan yang telus dan amanah.</p>
+            </div>
+            <div>
+                <h3 id="footer-links-title">Pautan Pantas</h3>
+                <p onclick="location.href='info.html'" style="cursor:pointer" id="footer-link1">Info Dialisis</p>
+                <p onclick="location.href='diet.html'" style="cursor:pointer" id="footer-link2">Diet & Nutrisi</p>
+                <p onclick="location.href='centers.html'" style="cursor:pointer" id="footer-link3">Pusat Rawatan</p>
+                <p onclick="location.href='allowance.html'" style="cursor:pointer" id="footer-link4">Elaun</p>
+            </div>
+            <div>
+                <h3 id="footer-contact-title">Hubungi</h3>
+                <p><i class="fas fa-envelope"></i> info@dialysiscare.com.my</p>
+                <p><i class="fas fa-phone"></i> +603-1234 5678</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #444;">
+        <p>&copy; 2026 DialysisCare Malaysia. Rekaan untuk tujuan demonstrasi.</p>
+    </footer>
+
+    <script>
+        // ==================== DATA PUSAT DIALISIS ====================
+        const dialysisCenters = [
+            { 
+                negeri: "Kuala Lumpur", 
+                nama: "Pusat Dialisis Pantai", 
+                alamat: "No. 8, Jalan Pantai Baru, Bangsar, 59100 Kuala Lumpur", 
+                telefon: "03-1234 5678",
+                lat: 3.1298,
+                lng: 101.6749
+            },
+            { 
+                negeri: "Selangor", 
+                nama: "Hospital Serdang (Unit Dialisis)", 
+                alamat: "Jalan Puchong, 43000 Kajang, Selangor", 
+                telefon: "03-8765 4321",
+                lat: 3.0409,
+                lng: 101.7182
+            },
+            { 
+                negeri: "Johor", 
+                nama: "Pusat Dialisis Johor Bahru", 
+                alamat: "No. 22, Jalan Tebrau, 80000 Johor Bahru", 
+                telefon: "07-2345 6789",
+                lat: 1.4927,
+                lng: 103.7428
+            },
+            { 
+                negeri: "Pulau Pinang", 
+                nama: "Georgetown Dialysis Centre", 
+                alamat: "45, Jalan Penang, 10000 Georgetown, Pulau Pinang", 
+                telefon: "04-1234 5678",
+                lat: 5.4215,
+                lng: 100.3312
+            },
+            { 
+                negeri: "Perak", 
+                nama: "Ipoh Dialysis Center", 
+                alamat: "No. 15, Jalan Sultan Idris Shah, 30000 Ipoh, Perak", 
+                telefon: "05-1234 5678",
+                lat: 4.5972,
+                lng: 101.0901
+            },
+            { 
+                negeri: "Sabah", 
+                nama: "Kota Kinabalu Dialysis", 
+                alamat: "Lot 123, Jalan KK, 88000 Kota Kinabalu, Sabah", 
+                telefon: "088-123456",
+                lat: 5.9804,
+                lng: 116.0735
+            },
+            { 
+                negeri: "Sarawak", 
+                nama: "Kuching Dialysis Centre", 
+                alamat: "No. 8, Jalan Kuching, 93000 Kuching, Sarawak", 
+                telefon: "082-123456",
+                lat: 1.5536,
+                lng: 110.3442
+            },
+            { 
+                negeri: "Melaka", 
+                nama: "Melaka Dialysis Center", 
+                alamat: "No. 5, Jalan Melaka Raya, 75000 Melaka", 
+                telefon: "06-1234 5678",
+                lat: 2.1965,
+                lng: 102.2491
+            }
+        ];
+
+        // ==================== GLOBAL VARIABLES ====================
+        let map;
+        let markers = [];
+        let currentLanguage = 'bm';
+        let chatboxOpen = false;
+
+        // ==================== TRANSLATIONS ====================
+        const translations = {
+            bm: {
+                "nav-home": "Utama",
+                "nav-about": "Mengenai",
+                "nav-info": "Info Dialisis",
+                "nav-diet": "Diet & Nutrisi",
+                "nav-centers": "Pusat Dialisis",
+                "nav-allowance": "Elaun",
+                "nav-donate": "Derma Sekarang",
+                "language-text": "BM/EN",
+                // Centers page translations
+                "table-header-state": "Negeri",
+                "table-header-name": "Nama Pusat",
+                "table-header-address": "Alamat",
+                "table-header-phone": "Telefon",
+                // Footer
+                "footer-title": "DialysisCare",
+                "footer-desc": "Membantu pesakit buah pinggang Malaysia sejak 2024. Organisasi kebajikan yang telus dan amanah.",
+                "footer-links-title": "Pautan Pantas",
+                "footer-link1": "Info Dialisis",
+                "footer-link2": "Diet & Nutrisi",
+                "footer-link3": "Pusat Rawatan",
+                "footer-link4": "Elaun",
+                "footer-contact-title": "Hubungi",
+                "chat-title": "Chat Bantuan DialysisCare",
+                "chat-subtitle": "Kami di sini untuk membantu anda",
+                "chat-placeholder": "Tulis mesej anda di sini...",
+                "current-lang": "Bahasa Melayu"
+            },
+            en: {
+                "nav-home": "Home",
+                "nav-about": "About",
+                "nav-info": "Dialysis Info",
+                "nav-diet": "Diet & Nutrition",
+                "nav-centers": "Dialysis Centers",
+                "nav-allowance": "Allowance",
+                "nav-donate": "Donate Now",
+                "language-text": "EN/BM",
+                // Centers page translations
+                "table-header-state": "State",
+                "table-header-name": "Center Name",
+                "table-header-address": "Address",
+                "table-header-phone": "Phone",
+                // Footer
+                "footer-title": "DialysisCare",
+                "footer-desc": "Helping kidney patients in Malaysia since 2024. A transparent and trustworthy charitable organization.",
+                "footer-links-title": "Quick Links",
+                "footer-link1": "Dialysis Info",
+                "footer-link2": "Diet & Nutrition",
+                "footer-link3": "Treatment Centers",
+                "footer-link4": "Allowance",
+                "footer-contact-title": "Contact",
+                "chat-title": "DialysisCare Help Chat",
+                "chat-subtitle": "We're here to help you",
+                "chat-placeholder": "Type your message here...",
+                "current-lang": "English"
+            }
+        };
+
+        // ==================== LANGUAGE FUNCTIONS ====================
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'bm' ? 'en' : 'bm';
+            updateLanguage();
+            updateMapButtons();
+            showLanguageNotification();
+        }
+
+        function updateLanguage() {
+            const lang = translations[currentLanguage];
+            Object.keys(lang).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = lang[key];
+                }
+            });
+            // Update welcome message in chat
+            const welcomeMsg = document.getElementById('welcome-message');
+            if (welcomeMsg) {
+                if (currentLanguage === 'bm') {
+                    welcomeMsg.innerHTML = `<strong>DialysisCare Bot:</strong> Assalamualaikum! Saya di sini untuk membantu anda. Anda boleh bertanya tentang:
+                        <ul style="margin-top: 5px; padding-left: 20px;">
+                            <li>Info rawatan dialisis</li>
+                            <li>Panduan diet</li>
+                            <li>Lokasi pusat rawatan</li>
+                            <li>Cara menderma</li>
+                        </ul>`;
+                } else {
+                    welcomeMsg.innerHTML = `<strong>DialysisCare Bot:</strong> Hello! I'm here to help you. You can ask about:
+                        <ul style="margin-top: 5px; padding-left: 20px;">
+                            <li>Dialysis treatment info</li>
+                            <li>Diet guidelines</li>
+                            <li>Treatment center locations</li>
+                            <li>How to donate</li>
+                        </ul>`;
+                }
+            }
+            // Update search placeholder
+            const searchBox = document.getElementById('centerSearch');
+            if (searchBox) {
+                searchBox.placeholder = currentLanguage === 'bm' 
+                    ? "Cari negeri atau nama pusat..." 
+                    : "Search state or center name...";
+            }
+            // Update language indicator
+            const currentLangSpan = document.getElementById('currentLang');
+            if (currentLangSpan) {
+                currentLangSpan.textContent = currentLanguage === 'bm' ? 'Bahasa Melayu' : 'English';
+            }
+        }
+
+        function updateMapButtons() {
+            const buttons = document.querySelectorAll('.map-btn');
+            const buttonTexts = [
+                currentLanguage === 'bm' ? 'Semua' : 'All',
+                currentLanguage === 'bm' ? 'KL' : 'KL',
+                currentLanguage === 'bm' ? 'Selangor' : 'Selangor',
+                currentLanguage === 'bm' ? 'Johor' : 'Johor',
+                currentLanguage === 'bm' ? 'Penang' : 'Penang',
+                currentLanguage === 'bm' ? 'Melaka' : 'Melaka',
+                currentLanguage === 'bm' ? 'Perak' : 'Perak',
+                currentLanguage === 'bm' ? 'Sabah' : 'Sabah',
+                currentLanguage === 'bm' ? 'Sarawak' : 'Sarawak'
+            ];
+            
+            buttons.forEach((btn, index) => {
+                if (index < buttonTexts.length) {
+                    btn.textContent = buttonTexts[index];
+                }
+            });
+        }
+
+        function showLanguageNotification() {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '100px';
+            notification.style.right = '30px';
+            notification.style.backgroundColor = 'var(--primary)';
+            notification.style.color = 'white';
+            notification.style.padding = '15px 25px';
+            notification.style.borderRadius = '50px';
+            notification.style.zIndex = '9999';
+            notification.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+            notification.style.animation = 'fadeIn 0.3s';
+            notification.innerHTML = `<i class="fas fa-check-circle"></i> ${currentLanguage === 'bm' ? 'Bahasa ditukar ke Melayu' : 'Language switched to English'}`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }
+
+        // ==================== DARK MODE FUNCTIONS ====================
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            updateDarkModeIcon();
+        }
+
+        function updateDarkModeIcon() {
+            const btn = document.getElementById('darkModeToggle');
+            if (!btn) return;
+            const icon = btn.querySelector('i');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // ==================== CHATBOX FUNCTIONS ====================
+        function toggleChatbox() {
+            const chatbox = document.getElementById('chatboxWindow');
+            chatboxOpen = !chatboxOpen;
+            chatbox.style.display = chatboxOpen ? 'flex' : 'none';
+            if (chatboxOpen) document.getElementById('chatInput').focus();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (message === '') return;
+            addMessage(message, 'user');
+            input.value = '';
+            setTimeout(() => {
+                const response = getBotResponse(message);
+                addMessage(response, 'bot');
+            }, 800);
+        }
+
+        function getBotResponse(message) {
+            const msg = message.toLowerCase();
+            if (currentLanguage === 'bm') {
+                if (msg.includes('dialisis') || msg.includes('rawatan')) 
+                    return "Rawatan dialisis biasanya dilakukan 3 kali seminggu, setiap sesi selama 4 jam.";
+                if (msg.includes('diet') || msg.includes('makanan')) 
+                    return "Pesakit dialisis perlu mengawasi pengambilan protein, sodium, potasium dan fosforus.";
+                if (msg.includes('pusat') || msg.includes('lokasi')) 
+                    return "Kami mempunyai pusat dialisis di seluruh Malaysia. Sila gunakan carian.";
+                if (msg.includes('derma') || msg.includes('sumbang')) 
+                    return "Anda boleh menderma melalui bahagian 'Derma Sekarang'.";
+                if (msg.includes('allowance') || msg.includes('elaun') || msg.includes('bantuan')) 
+                    return "Untuk maklumat bantuan kewangan, sila lawati halaman Elaun & Bantuan Kewangan.";
+                if (msg.includes('subsidi') || msg.includes('pendidikan') || msg.includes('holistik')) 
+                    return "Untuk maklumat lanjut tentang program kami, sila klik butang 'Maklumat Lanjut' di halaman utama.";
+                if (msg.includes('hello') || msg.includes('hi') || msg.includes('assalam')) 
+                    return "Assalamualaikum! Terima kasih kerana menghubungi DialysisCare.";
+                return "Untuk maklumat lebih terperinci, layari bahagian-bahagian di laman web kami.";
+            } else {
+                if (msg.includes('dialysis') || msg.includes('treatment')) 
+                    return "Dialysis treatment is usually done 3 times a week, each session lasting 4 hours.";
+                if (msg.includes('diet') || msg.includes('food')) 
+                    return "Dialysis patients need to monitor protein, sodium, potassium and phosphorus intake.";
+                if (msg.includes('center') || msg.includes('location')) 
+                    return "We have dialysis centers across Malaysia. Please use the search.";
+                if (msg.includes('donate')) 
+                    return "You can donate through the 'Donate Now' section.";
+                if (msg.includes('allowance') || msg.includes('financial')) 
+                    return "For financial aid information, please visit the Allowance & Financial Aid page.";
+                if (msg.includes('subsidy') || msg.includes('education') || msg.includes('holistic')) 
+                    return "For more information about our programs, please click the 'More Info' button on the homepage.";
+                if (msg.includes('hello') || msg.includes('hi')) 
+                    return "Hello! Thank you for contacting DialysisCare.";
+                return "For more detailed information, please browse the sections on our website.";
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = sender === 'bot' ? 
+                `<strong>DialysisCare Bot:</strong> ${text}` : 
+                `<strong>${currentLanguage === 'bm' ? 'Anda' : 'You'}:</strong> ${text}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function handleChatInput(event) {
+            if (event.key === 'Enter') sendMessage();
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function showHomeModal(card) {
+            // Not used on this page, but keep for completeness
+            const modal = document.getElementById('infoModal');
+            const modalBody = document.getElementById('modalBody');
+            let title, content;
+            if (currentLanguage === 'bm') {
+                switch(card) {
+                    case 'subsidi':
+                        title = 'Rawatan Subsidi';
+                        content = `
+                            <div class="modal-header"><i class="fas fa-hand-holding-heart"></i><h2>${title}</h2></div>
+                            <p><strong>Program Bantuan Rawatan Subsidi</strong></p>
+                            <p>DialysisCare menyediakan subsidi sehingga RM500 sebulan untuk pesakit dialisis yang kurang berkemampuan. Subsidi ini boleh digunakan untuk menampung kos rawatan hemodialisis di pusat-pusat rakan kongsi kami.</p>
+                            <p><strong>Syarat Kelayakan:</strong></p>
+                            <ul class="modal-list">
+                                <li>Warganegara Malaysia</li>
+                                <li>Pesakit dialisis aktif (hemodialisis / CAPD)</li>
+                                <li>Pendapatan isi rumah kurang RM3,000 sebulan</li>
+                                <li>Disokong oleh pekerja sosial atau pegawai perubatan</li>
+                            </ul>
+                            <p><strong>Cara Memohon:</strong> Dapatkan borang di mana-mana pusat DialysisCare atau muat turun secara online. Hantar bersama dokumen sokongan ke pejabat kami.</p>
+                        `;
+                        break;
+                    case 'public':
+                        title = 'Pendidikan Awam';
+                        content = `
+                            <div class="modal-header"><i class="fas fa-chalkboard-teacher"></i><h2>${title}</h2></div>
+                            <p><strong>Program Kesedaran & Pencegahan</strong></p>
+                            <p>Kami menganjurkan seminar percuma dan saringan kesihatan secara berkala di seluruh Malaysia untuk meningkatkan kesedaran tentang penyakit buah pinggang kronik (CKD).</p>
+                            <p><strong>Aktiviti Utama:</strong></p>
+                            <ul class="modal-list">
+                                <li>Ceramah kesihatan oleh pakar nefrologi</li>
+                                <li>Saringan tekanan darah, gula, dan fungsi buah pinggang percuma</li>
+                                <li>Pameran dan edaran bahan pendidikan</li>
+                                <li>Program intervensi awal untuk golongan berisiko tinggi</li>
+                            </ul>
+                            <p><strong>Jadual terkini:</strong> Sila layari laman web atau hubungi pusat DialysisCare berhampiran.</p>
+                        `;
+                        break;
+                    case 'holistic':
+                        title = 'Kesihatan Holistik';
+                        content = `
+                            <div class="modal-header"><i class="fas fa-spa"></i><h2>${title}</h2></div>
+                            <p><strong>Pendekatan Menyeluruh untuk Pesakit Dialisis</strong></p>
+                            <p>Kami percaya bahawa rawatan bukan sekadar prosedur perubatan, tetapi juga melibatkan penjagaan mental, emosi, dan fizikal pesakit.</p>
+                            <p><strong>Komponen Program Holistik:</strong></p>
+                            <ul class="modal-list">
+                                <li>Kaunseling psikologi dan sokongan moral</li>
+                                <li>Kelas memasak sihat untuk pesakit dialisis</li>
+                                <li>Senaman ringan dan fisioterapi</li>
+                                <li>Kumpulan sokongan (support group) untuk pesakit dan keluarga</li>
+                            </ul>
+                            <p>Semua aktiviti adalah percuma untuk pesakit berdaftar DialysisCare.</p>
+                        `;
+                        break;
+                }
+            } else {
+                switch(card) {
+                    case 'subsidi':
+                        title = 'Subsidized Treatment';
+                        content = `
+                            <div class="modal-header"><i class="fas fa-hand-holding-heart"></i><h2>${title}</h2></div>
+                            <p><strong>Subsidized Treatment Assistance Program</strong></p>
+                            <p>DialysisCare provides up to RM500 monthly subsidy for underprivileged dialysis patients. This subsidy can be used to cover hemodialysis treatment costs at our partner centers.</p>
+                            <p><strong>Eligibility Criteria:</strong></p>
+                            <ul class="modal-list">
+                                <li>Malaysian citizen</li>
+                                <li>Active dialysis patient (hemodialysis / CAPD)</li>
+                                <li>Household income below RM3,000 per month</li>
+                                <li>Supported by social worker or medical officer</li>
+                            </ul>
+                            <p><strong>How to Apply:</strong> Obtain forms at any DialysisCare center or download online. Submit with supporting documents to our office.</p>
+                        `;
+                        break;
+                    case 'public':
+                        title = 'Public Education';
+                        content = `
+                            <div class="modal-header"><i class="fas fa-chalkboard-teacher"></i><h2>${title}</h2></div>
+                            <p><strong>Awareness & Prevention Programs</strong></p>
+                            <p>We organize free seminars and health screenings regularly across Malaysia to raise awareness about chronic kidney disease (CKD).</p>
+                            <p><strong>Main Activities:</strong></p>
+                            <ul class="modal-list">
+                                <li>Health talks by nephrology experts</li>
+                                <li>Free blood pressure, blood sugar, and kidney function screening</li>
+                                <li>Exhibitions and distribution of educational materials</li>
+                                <li>Early intervention programs for high-risk groups</li>
+                            </ul>
+                            <p><strong>Latest schedule:</strong> Please visit the website or contact your nearest DialysisCare center.</p>
+                        `;
+                        break;
+                    case 'holistic':
+                        title = 'Holistic Health';
+                        content = `
+                            <div class="modal-header"><i class="fas fa-spa"></i><h2>${title}</h2></div>
+                            <p><strong>Comprehensive Approach for Dialysis Patients</strong></p>
+                            <p>We believe that treatment is not just a medical procedure, but also involves mental, emotional, and physical care of the patient.</p>
+                            <p><strong>Holistic Program Components:</strong></p>
+                            <ul class="modal-list">
+                                <li>Psychological counseling and moral support</li>
+                                <li>Healthy cooking classes for dialysis patients</li>
+                                <li>Light exercise and physiotherapy</li>
+                                <li>Support groups for patients and families</li>
+                            </ul>
+                            <p>All activities are free for registered DialysisCare patients.</p>
+                        `;
+                        break;
+                }
+            }
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        function showInfoModal(type) {
+            const modal = document.getElementById('infoModal');
+            const modalBody = document.getElementById('modalBody');
+            let title, content;
+            if (currentLanguage === 'bm') {
+                if (type === 'hd') {
+                    title = 'Maklumat Lanjut Hemodialisis';
+                    content = `
+                        <div class="modal-header"><i class="fas fa-heartbeat"></i><h2>${title}</h2></div>
+                        <p><strong>Prosedur:</strong> Dua jarum dimasukkan ke dalam fistula - satu untuk mengeluarkan darah dan satu untuk memulangkan darah yang telah ditapis.</p>
+                        <p><strong>Lokasi:</strong> Biasanya dilakukan di pusat dialisis atau hospital.</p>
+                        <p><strong>Tempoh:</strong> Setiap sesi mengambil masa 3-5 jam.</p>
+                        <p><strong>Kos:</strong> RM 200-400 setiap sesi (subsidi tersedia untuk pesakit layak).</p>
+                    `;
+                } else {
+                    title = 'Maklumat Lanjut Dialisis Peritoneal';
+                    content = `
+                        <div class="modal-header"><i class="fas fa-home-medical"></i><h2>${title}</h2></div>
+                        <p><strong>Prosedur:</strong> Cecair dialisis dimasukkan ke dalam rongga perut melalui kateter.</p>
+                        <p><strong>Lokasi:</strong> Boleh dilakukan di rumah atau tempat kerja.</p>
+                        <p><strong>Kekerapan:</strong> 4-5 pertukaran sehari.</p>
+                        <p><strong>Kos:</strong> RM 150-300 sehari (termasuk bekalan).</p>
+                    `;
+                }
+            } else {
+                if (type === 'hd') {
+                    title = 'More Information on Hemodialysis';
+                    content = `
+                        <div class="modal-header"><i class="fas fa-heartbeat"></i><h2>${title}</h2></div>
+                        <p><strong>Procedure:</strong> Two needles are inserted into the fistula - one to remove blood and one to return filtered blood.</p>
+                        <p><strong>Location:</strong> Usually done at dialysis centers or hospitals.</p>
+                        <p><strong>Duration:</strong> Each session takes 3-5 hours.</p>
+                        <p><strong>Cost:</strong> RM 200-400 per session (subsidies available).</p>
+                    `;
+                } else {
+                    title = 'More Information on Peritoneal Dialysis';
+                    content = `
+                        <div class="modal-header"><i class="fas fa-home-medical"></i><h2>${title}</h2></div>
+                        <p><strong>Procedure:</strong> Dialysis fluid is inserted into the abdominal cavity through a catheter.</p>
+                        <p><strong>Location:</strong> Can be done at home or workplace.</p>
+                        <p><strong>Frequency:</strong> 4-5 exchanges per day.</p>
+                        <p><strong>Cost:</strong> RM 150-300 per day (including supplies).</p>
+                    `;
+                }
+            }
+            modalBody.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        // ==================== CENTERS PAGE SPECIFIC FUNCTIONS ====================
+        function loadCenters() {
+            const tbody = document.getElementById('centerTableBody');
+            tbody.innerHTML = '';
+            
+            dialysisCenters.forEach(center => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = center.negeri;
+                row.insertCell(1).textContent = center.nama;
+                row.insertCell(2).textContent = center.alamat;
+                row.insertCell(3).textContent = center.telefon;
+                
+                row.addEventListener('click', () => {
+                    const centerMarker = markers.find(m => m.options.title === center.nama);
+                    if (centerMarker) {
+                        map.setView([center.lat, center.lng], 15);
+                        centerMarker.openPopup();
+                    }
+                });
+            });
+        }
+
+        function searchCenters() {
+            let input = document.getElementById('centerSearch').value.toUpperCase();
+            let table = document.getElementById('centerTable');
+            let tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let rowText = tr[i].textContent.toUpperCase();
+                if (rowText.indexOf(input) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+            
+            if (input.length > 0) {
+                const filtered = dialysisCenters.filter(c => 
+                    c.negeri.toUpperCase().includes(input) || 
+                    c.nama.toUpperCase().includes(input)
+                );
+                updateMapMarkers(filtered);
+            } else {
+                updateMapMarkers('all');
+            }
+        }
+
+        function initMap() {
+            map = L.map('map').setView([3.1390, 101.6869], 7);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            const redIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            
+            dialysisCenters.forEach(center => {
+                const marker = L.marker([center.lat, center.lng], { 
+                    icon: redIcon,
+                    title: center.nama 
+                }).addTo(map);
+                
+                marker.bindPopup(`
+                    <div style="padding: 10px; max-width: 200px;">
+                        <h3 style="color: #0056b3; margin: 0 0 5px 0;">${center.nama}</h3>
+                        <p style="margin: 5px 0;"><strong>${center.negeri}</strong></p>
+                        <p style="margin: 5px 0;">${center.alamat}</p>
+                        <p style="margin: 5px 0;">📞 ${center.telefon}</p>
+                    </div>
+                `);
+                
+                markers.push(marker);
+            });
+        }
+
+        function filterMap(negeri) {
+            document.querySelectorAll('.map-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (negeri === 'all') {
+                updateMapMarkers('all');
+            } else {
+                const filtered = dialysisCenters.filter(c => c.negeri === negeri);
+                updateMapMarkers(filtered);
+            }
+        }
+
+        function updateMapMarkers(filter) {
+            markers.forEach(marker => map.removeLayer(marker));
+            
+            if (filter === 'all') {
+                markers.forEach(marker => marker.addTo(map));
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.2));
+            } else {
+                const filteredMarkers = [];
+                filter.forEach(center => {
+                    const marker = markers.find(m => m.options.title === center.nama);
+                    if (marker) {
+                        marker.addTo(map);
+                        filteredMarkers.push(marker);
+                    }
+                });
+                
+                if (filteredMarkers.length > 0) {
+                    const group = new L.featureGroup(filteredMarkers);
+                    map.fitBounds(group.getBounds().pad(0.3));
+                }
+            }
+        }
+
+        // ==================== INITIALISATION ====================
+        window.onload = function() {
+            loadCenters();
+            updateLanguage();
+            updateMapButtons();
+            
+            initMap();
+            
+            // Set active link based on current page
+            const page = window.location.pathname.split('/').pop() || 'index.html';
+            const navMap = {
+                'index.html': 'nav-home',
+                'about.html': 'nav-about',
+                'info.html': 'nav-info',
+                'diet.html': 'nav-diet',
+                'centers.html': 'nav-centers',
+                'allowance.html': 'nav-allowance',
+                'donate.html': 'nav-donate'
+            };
+            const activeId = navMap[page];
+            if (activeId) {
+                document.getElementById(activeId)?.classList.add('active-link');
+            } else {
+                document.getElementById('nav-home')?.classList.add('active-link');
+            }
+
+            // Dark mode from localStorage
+            const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (savedDarkMode) {
+                document.body.classList.add('dark-mode');
+                updateDarkModeIcon();
+            }
+
+            // Modal click outside to close
+            window.onclick = function(event) {
+                const modal = document.getElementById('infoModal');
+                if (event.target == modal) modal.style.display = 'none';
+            };
+        };
+    </script>
+    <script>
+        // API Key Mistral anda telah dimasukkan di sini
+        const MISTRAL_API_KEY = '7o9M9CUMfGcJ2CS0nX3Wel0vWBfA5Rm1';
+
+        async function sendMessage() {
+            const inputField = document.getElementById('chatInput');
+            const messageContainer = document.getElementById('chatMessages');
+            const userMessage = inputField.value.trim();
+
+            if (userMessage === "") return;
+
+            // 1. Papar mesej pengguna di UI
+            appendMessage('user', userMessage);
+            inputField.value = '';
+
+            // 2. Tunjukkan status "Sedang berfikir..."
+            const loadingId = 'loading-' + Date.now();
+            appendMessage('bot', '...', loadingId);
+
+            try {
+                // 3. Panggilan API ke Mistral AI
+                const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${MISTRAL_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "mistral-tiny", 
+                        messages: [
+                            {
+                                role: "system", 
+                                content: "Anda adalah pembantu DialysisCare yang pakar dalam dialisis dan kesihatan buah pinggang. Jawab secara sopan dalam Bahasa Melayu."
+                            },
+                            {
+                                role: "user", 
+                                content: userMessage
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Padam status loading
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) loadingElement.remove();
+
+                if (data.choices && data.choices.length > 0) {
+                    const botReply = data.choices[0].message.content;
+                    appendMessage('bot', botReply);
+                } else {
+                    appendMessage('bot', 'Maaf, saya tidak dapat memproses permintaan anda sekarang.');
+                }
+
+            } catch (error) {
+                console.error("Ralat API:", error);
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) {
+                    loadingElement.innerText = "Maaf, ralat teknikal berlaku.";
+                }
+            }
+        }
+
+        // Fungsi untuk memaparkan mesej ke dalam kotak sembang
+        function appendMessage(sender, text, id = null) {
+            const messageContainer = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            
+            // Menambah class untuk styling (bot vs user)
+            div.className = `message ${sender}`;
+            if (id) div.id = id;
+            
+            const senderName = sender === 'user' ? 'Anda' : 'DialysisCare Bot';
+            div.innerHTML = `<strong>${senderName}:</strong> ${text}`;
+            
+            messageContainer.appendChild(div);
+            
+            // Auto-scroll ke bawah supaya mesej terbaru nampak
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        // Fungsi untuk hantar mesej bila tekan Enter
+        function handleChatInput(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        // Fungsi untuk buka dan tutup window chatbox
+        function toggleChatbox() {
+            const chatbox = document.getElementById('chatboxWindow');
+            if (chatbox.style.display === 'flex') {
+                chatbox.style.display = 'none';
+            } else {
+                chatbox.style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>
+</body>
+</html>
